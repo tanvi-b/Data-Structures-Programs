@@ -1,0 +1,16 @@
+public class Search
+{
+    public static int linearSearch (int[] list, int value)
+    {
+        int found = -1;
+        for (int x = 0; x<list.length; x++)
+        {
+            if (list[x]==value)
+            {
+                found = x;
+                break;
+            }
+        }
+        return found;
+    }
+}
