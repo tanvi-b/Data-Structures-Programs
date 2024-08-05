@@ -1,0 +1,125 @@
+import java.awt.Point;
+
+public class Path
+{
+    public static int breadthFirstSearch (char[][] maze)
+    {
+        int[][] distance = new int[maze.length][maze[0].length];
+        for (int r = 0; r<distance.length; r++)
+        {
+            for (int c = 0; c<distance[0].length; c++)
+            {
+                distance[r][c]=-1;
+            }
+        }
+        MyQueue<Point> queue = new MyQueue<>();
+
+        int startRow = 0;
+        int startColumn = 0;
+        for(int r = 0; r < maze.length; r++)
+        {
+            for(int c = 0; c < maze[0].length; c++)
+            {
+                if (maze[r][c]=='S')
+                {
+                    startRow = r;
+                    startColumn = c;
+                }
+            }
+        }
+        
+        Point start = new Point (startRow, startColumn);
+        queue.offer(start);
+        distance[startRow][startColumn] = 0;
+
+        int endRow = 0;
+        int endColumn = 0;
+        for(int r = 0; r < maze.length; r++)
+        {
+            for(int c = 0; c < maze[0].length; c++)
+            {
+                if (maze[r][c]=='E')
+                {
+                    endRow = r;
+                    endColumn = c;
+                }
+            }
+        }
+
+        while (queue.isEmpty()==false)
+        {
+            Point location = queue.poll();
+            int x = (int) location.getX();
+            int y = (int) location.getY();
+
+            if (maze[x][y]=='E')
+                return distance[x][y]; //min number of steps needed to solve maze
+            if (maze[x][y]=='a' || maze[x][y]=='b' || maze[x][y]=='c' || maze[x][y]=='d' || maze[x][y]=='A' || maze[x][y]=='B' || maze[x][y]=='C' || maze[x][y]=='D')
+            {
+                char givenPortal = maze[x][y];
+                portalLogic(maze, givenPortal, x, y, distance, queue);
+            }
+            pushAdjacentLocations (maze, distance, queue, location);
+        }
+        return -1;
+    }
+
+    public static void pushAdjacentLocations (char[][] maze, int[][] distance, MyQueue<Point> queue, Point location)   
+    {
+        if (isValid(maze, distance, (int) location.getX()-1, (int) location.getY()))
+        {
+            queue.offer(new Point ((int) location.getX()-1, (int) location.getY()));
+            distance[(int) location.getX()-1][(int) location.getY()] = distance[(int) location.getX()][(int) location.getY()] + 1;
+        } 
+        
+        if (isValid(maze, distance, (int) location.getX()+1, (int) location.getY()))
+        {
+            queue.offer(new Point ((int) location.getX()+1, (int) location.getY()));
+            distance[(int) location.getX()+1][(int) location.getY()] = distance[(int) location.getX()][(int) location.getY()] + 1;
+        }
+        
+        if (isValid(maze, distance, (int) location.getX(), (int) location.getY()-1))
+        {
+            queue.offer(new Point ((int) location.getX(), (int) location.getY()-1));
+            distance[(int) location.getX()][(int) location.getY()-1] = distance[(int) location.getX()][(int) location.getY()] + 1;
+        }
+        
+        if (isValid(maze, distance, (int) location.getX(), (int) location.getY()+1))
+        {
+            queue.offer(new Point ((int) location.getX(), (int) location.getY()+1));
+            distance[(int) location.getX()][(int) location.getY()+1] = distance[(int) location.getX()][(int) location.getY()] + 1;
+        }
+    }
+
+    public static boolean isValid (char[][] maze, int[][] distance, int x, int y)
+    {
+        if (x>=maze.length || x<0 || y>=maze[0].length || y<0 || maze[x][y]=='W' || distance[x][y]!=-1)
+            return false;
+        return true;
+    }
+
+    public static void portalLogic (char[][] maze, char givenPortal, int x, int y, int[][] distance, MyQueue<Point> queue)
+    {
+        char portal;
+        if (Character.isUpperCase(givenPortal)==true)
+            portal = Character.toLowerCase(givenPortal);
+        else 
+            portal = Character.toUpperCase(givenPortal);
+        
+        for(int r = 0; r < maze.length; r++)
+        {
+            for(int c = 0; c < maze[0].length; c++)
+            {
+                if (maze[r][c]==portal && distance[r][c]==-1)
+                {
+                    queue.offer(new Point (r,c));
+                    distance[r][c] = distance[x][y]+1;
+                }
+            }
+        }
+    }
+}
+
+//Modifications:
+//Tracking Distance - Replace the boolean array with a distance array that is initialized to -1. As nodes are visited, put their distance from start into the distance array. When an item has a distance of -1 is it unvisited.
+//Tracking Paths - have the queue store a path, a list of locations. When you offer a path, offer the polled path plus the node that was just visited. When the solution is found, the last polled path is the shortest solution.
