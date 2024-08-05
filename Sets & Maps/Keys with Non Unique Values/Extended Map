@@ -1,0 +1,26 @@
+import java.util.*;
+
+public class ExtendedMap<K,V> extends MyMap<K,V>
+{
+    public ArrayList<K> nonUnique()
+    {
+        ArrayList<K> nonUnique = new ArrayList<K>();
+
+        Iterator<MapEnt<K,V>> iter= entrySet().iterator();
+        while(iter.hasNext())
+        {
+            MapEnt<K,V> item = iter.next();
+            int count = 0;
+            Iterator<MapEnt<K,V>> iter2= entrySet().iterator();
+            while (iter2.hasNext())
+            {
+                MapEnt<K,V> item2 = iter2.next();
+                if (item.getValue().equals(item2.getValue()))
+                    count++;
+            }
+            if (count>1)
+                nonUnique.add(item.getKey());
+        }
+        return nonUnique;
+    }
+}
