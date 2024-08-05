@@ -1,0 +1,85 @@
+import java.awt.Point;
+
+public class Path
+{
+    public static boolean depthFirstSearch (char[][] maze)
+    {
+        boolean[][] visited = new boolean[maze.length][maze[0].length];
+        MyStack<Point> stack = new MyStack<>();
+
+        int startRow = 0;
+        int startColumn = 0;
+        for(int r = 0; r < maze.length; r++)
+        {
+            for(int c = 0; c < maze[0].length; c++)
+            {
+                if (maze[r][c]=='S')
+                {
+                    startRow = r;
+                    startColumn = c;
+                }
+            }
+        }
+        
+        Point start = new Point (startRow, startColumn);
+        stack.push(start);
+        while (stack.isEmpty()==false)
+        {
+            Point location = stack.pop();
+            int x = (int) location.getX();
+            int y = (int) location.getY();
+            visited[x][y]=true;
+            if (maze[x][y]=='E')
+                return true;
+            if (maze[x][y]=='a' || maze[x][y]=='b' || maze[x][y]=='c' || maze[x][y]=='d' || maze[x][y]=='A' || maze[x][y]=='B' || maze[x][y]=='C' || maze[x][y]=='D')
+            {
+                char givenPortal = maze[x][y];
+                location = findPortal (maze, givenPortal, x, y);
+            }
+            pushAdjacentLocations(maze, visited, stack, location);
+        }
+        return false;
+    }
+
+    public static void pushAdjacentLocations (char[][] maze, boolean[][] visited, MyStack<Point> stack, Point location)   
+    {
+        if (isValid(maze, visited, (int) location.getX()-1, (int) location.getY()))
+            stack.push(new Point ((int) location.getX()-1, (int) location.getY()));
+        
+        if (isValid(maze, visited, (int) location.getX()+1, (int) location.getY()))
+            stack.push(new Point ((int) location.getX()+1, (int) location.getY()));
+        
+        if (isValid(maze, visited, (int) location.getX(), (int) location.getY()-1))
+            stack.push(new Point ((int) location.getX(), (int) location.getY()-1));
+        
+        if (isValid(maze, visited, (int) location.getX(), (int) location.getY()+1))
+            stack.push(new Point ((int) location.getX(), (int) location.getY()+1));
+    }
+
+    public static boolean isValid (char[][] maze, boolean[][] visited, int x, int y)
+    {
+        if (x>=maze.length || x<0 || y>=maze[0].length || y<0 || maze[x][y]=='W' || visited[x][y]==true)
+            return false;
+        return true;
+    }
+
+    public static Point findPortal (char[][] maze, char givenPortal, int x, int y)
+    {
+        char portal;
+        if (Character.isUpperCase(givenPortal)==true)
+            portal = Character.toLowerCase(givenPortal);
+        else 
+            portal = Character.toUpperCase(givenPortal);
+        
+        Point portalSpot = new Point (x, y);
+        for(int r = 0; r < maze.length; r++)
+        {
+            for(int c = 0; c < maze[0].length; c++)
+            {
+                if (maze[r][c]==portal)
+                portalSpot.setLocation(r, c);
+            }
+        }
+        return portalSpot;
+    }
+}
