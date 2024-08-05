@@ -1,0 +1,174 @@
+//Add code here
+import java.util.Scanner;
+import java.util.*;
+
+public class Main
+{
+    public static void main(String[] args)
+    {
+        Scanner user_input = new Scanner(System.in);
+        int disks = 0;
+        int moves = 0;
+        MyStack pole1 = new MyStack();
+        MyStack pole2 = new MyStack();
+        MyStack pole3 = new MyStack();
+
+        while (disks<3 || disks>5)
+        {
+            System.out.print("How many disks would you like to play with (3 to 5): ");
+            disks = user_input.nextInt();
+            if (disks>=3 && disks<=5)
+                break;
+            System.out.println("\tValue out of range");
+        }
+
+        for (int i = disks*2 + 1; i>=3; i-=2)
+        {
+            pole1.push(new Integer(i));
+        }
+
+        printPoles(pole1, pole2, pole3, disks);
+
+        while (true)
+        {
+            if (pole2.size()==disks || pole3.size()==disks)
+                break;
+            int sourcePole = 0;
+            int destinationPole = 0;
+            while (true)
+            {
+                System.out.print("Enter the source pole: (1 to 3): ");
+                sourcePole = user_input.nextInt();
+                System.out.print("Enter the destination pole: (1 to 3): ");
+                destinationPole = user_input.nextInt();
+                if (sourcePole<1 || sourcePole>3 || destinationPole<1 || destinationPole>3)
+                {
+                    System.out.println("\tFrom and to must both be values from 1 to 3.");
+                    printPoles(pole1, pole2, pole3, disks);
+                    continue;
+                }
+                else if (isPoleEmpty(sourcePole, pole1, pole2, pole3))
+                {
+                    System.out.println("\tInvalid move, from is an empty stack.");
+                    printPoles(pole1, pole2, pole3, disks);
+                    continue;
+                }
+                else if (largeOnSmall(sourcePole, destinationPole, pole1, pole2, pole3))
+                {
+                    System.out.println("\tInvalid move, a larger disk can not be placed on a smaller disk.");
+                    printPoles(pole1, pole2, pole3, disks);
+                    continue;
+                }
+                else
+                    break;
+            }
+            moveDisk (sourcePole, destinationPole, pole1, pole2, pole3);
+            moves++;
+            printPoles(pole1, pole2, pole3, disks);
+        }
+        System.out.print("You solved the puzzle in " + moves + " moves!");
+    }
+
+    public static void printPoles (MyStack pole1, MyStack pole2, MyStack pole3, int disks)
+    {
+        for (int i = 5; i>=0; i--)
+        {
+            printPoles(pole1, i, maxDiskLength(pole1));
+            printPoles(pole2, i, maxDiskLength(pole2));
+            printPoles(pole3, i, maxDiskLength(pole3));
+            System.out.print("\n");
+        }
+    }
+
+    public static void printPoles (MyStack pole, int i, int maxDiskLength)
+    {
+        if (pole.get(i)!=null)
+        {
+            for (int k = 0; k<(maxDiskLength-(int)pole.get(i))/2; k++)
+                System.out.print(" ");
+            for (int j = 0; j<(int)pole.get(i); j++)
+                System.out.print("X");
+            for (int l = 0; l<(maxDiskLength-(int)pole.get(i))/2; l++)
+                System.out.print(" ");
+            System.out.print("\t\t");
+        }
+        else
+        { 
+            for (int k = 0; k<(maxDiskLength-1)/2; k++)
+                System.out.print(" ");
+            System.out.print("-");
+            for (int k = 0; k<(maxDiskLength-1)/2; k++)
+                System.out.print(" ");
+            System.out.print("\t\t");
+        }
+    }
+
+    public static int maxDiskLength (MyStack pole)
+    {
+        int length = 1;
+        for (int i = 0; i<pole.size(); i++)
+        {
+            if ((int)pole.get(i)>length)
+                length = (int)pole.get(i);
+        }
+        return length;
+    }
+
+    public static boolean isPoleEmpty (int sourcePole, MyStack pole1, MyStack pole2, MyStack pole3)
+    {
+        if (sourcePole==1)
+            return pole1.isEmpty();
+        if (sourcePole==2)
+            return pole2.isEmpty();
+        return pole3.isEmpty();
+    }
+    
+    public static boolean largeOnSmall (int sourcePole, int destinationPole, MyStack pole1, MyStack pole2, MyStack pole3)
+    {
+        if (sourcePole==1)
+        {
+            if (destinationPole==1)
+                return (int)pole1.peek()>(int)pole1.peek();
+            else if (destinationPole==2)
+                return (int)pole1.peek()>(int)pole2.peek();
+            else
+                return (int)pole1.peek()>(int)pole3.peek();
+        }
+        else if (sourcePole==2)
+        {
+            if (destinationPole==1)
+                return (int)pole2.peek()>(int)pole1.peek();
+            else if (destinationPole==2)
+                return (int)pole2.peek()>(int)pole2.peek();
+            else
+                return (int)pole2.peek()>(int)pole3.peek();
+        }
+        else
+        {
+            if (destinationPole==1)
+                return (int)pole3.peek()>(int)pole1.peek();
+            else if (destinationPole==2)
+                return (int)pole3.peek()>(int)pole2.peek();
+            else
+                return (int)pole3.peek()>(int)pole3.peek();
+        }
+    }
+
+     public static void moveDisk (int sourcePole, int destinationPole, MyStack pole1, MyStack pole2, MyStack pole3)
+    {
+        Integer disk = new Integer(0);
+        if (sourcePole==1)
+            disk = (Integer)pole1.pop();
+        else if (sourcePole==2)
+            disk = (Integer)pole2.pop();
+        else
+            disk = (Integer)pole3.pop();
+
+        if (destinationPole==1)
+            pole1.push(disk);
+        else if (destinationPole==2)
+            pole2.push(disk);
+        else
+            pole3.push(disk);    
+    }
+}
