@@ -1,0 +1,256 @@
+
+public class BST<E extends Comparable> implements BST_Interface<E>
+{
+    TreeNode<E> root;
+
+    public BST()
+    {
+        root = null;
+    }
+
+    public String preOrder()
+    {
+        if(root==null)
+            return "[]";
+        return "["+preOrderHelper(root).substring(2)+"]";
+    }
+
+    public String preOrderHelper(TreeNode<E> temp)
+    {
+        if(temp==null)
+            return "";
+        else
+            return ", " +temp.getData() + preOrderHelper(temp.getLeft()) + preOrderHelper(temp.getRight());
+    }
+
+    public String inOrder()
+    {
+        if(root==null)
+            return "[]";
+        return "["+inOrderHelper(root).substring(2)+"]";
+    }
+
+    public String inOrderHelper(TreeNode<E> temp)
+    {
+        if (temp==null)
+            return "";
+        else
+            return  inOrderHelper(temp.getLeft()) + ", " + temp.getData() + inOrderHelper(temp.getRight());
+    }
+
+    public String postOrder()
+    {
+        if(root==null)
+            return "[]";
+        return "["+postOrderHelper(root).substring(2)+"]";
+    }
+
+    public String postOrderHelper(TreeNode<E> temp)
+    {
+        if (temp==null)
+            return "";
+        else
+            return  postOrderHelper(temp.getLeft()) + postOrderHelper(temp.getRight()) + ", " + temp.getData();
+    }
+
+    public E minValue()
+    {
+        if (root==null)
+            return null;
+
+        while (root.getLeft()!=null)
+            root = root.getLeft();
+        return root.getData();
+    }
+
+    public E maxValue()
+    {
+        if (root==null)
+            return null;
+
+        while (root.getRight()!=null)
+            root = root.getRight();
+        return root.getData();
+    }
+
+    public int maxDepth()
+    {
+        if (root==null)
+            return -1;
+        return height()-1;
+    }
+
+    public int height()
+    {
+        return heightHelper(root);
+    }
+
+    public int heightHelper(TreeNode<E> node)
+    {
+        if (node==null)
+            return 0;
+        int leftHeight = heightHelper(node.getLeft());
+        int rightHeight = heightHelper(node.getRight());
+        return Math.max(leftHeight, rightHeight) + 1;
+    }
+
+    public void clear()
+    {
+        root = null;
+    }
+
+    public int size()
+    {
+        return sizeHelper(root);
+    }
+
+    public int sizeHelper(TreeNode<E> node)
+    {
+        if (node==null)
+            return 0;
+        else
+            return 1 + sizeHelper(node.getLeft()) + sizeHelper(node.getRight());
+    }
+
+    public boolean isEmpty()
+    {
+        if (root==null)
+            return true;
+        return false;
+    }
+
+    public boolean contains(E data)
+    {
+        return containsHelper(root, data);
+    }
+
+    public boolean containsHelper(TreeNode<E> node, E data)
+    {
+        if (node == null)
+            return false;
+
+        int comparison = data.compareTo(node.getData());
+
+        if (comparison == 0)
+            return true;
+        else if (comparison < 0)
+            return containsHelper(node.getLeft(), data);
+        else
+            return containsHelper(node.getRight(), data);
+    }
+
+    public boolean insert(E data)
+    {
+        if (root==null)
+        {
+            TreeNode<E> newNode = new TreeNode(data);
+            root = newNode;
+            return true;
+        }
+        return insertHelper(root,data);
+    }
+
+    public boolean insertHelper(TreeNode<E> node, E data)
+    {
+        TreeNode<E> newNode = new TreeNode(data);
+        if (data.compareTo(node.getData()) < 0)
+        {
+            if (node.getLeft() == null)
+            {
+                node.setLeft(newNode);
+                return true;
+            }
+            else
+                return insertHelper(node.getLeft(), data);
+        }
+        else if (data.compareTo(node.getData()) > 0)
+        {
+            if (node.getRight() == null)
+            {
+                node.setRight(newNode);
+                return true;
+            }
+            else
+                return insertHelper(node.getRight(), data);
+        }
+        else
+            return false;
+    }
+
+    public boolean remove(E data) //review removing w/ 2 children
+    {
+        if (isEmpty())
+            return false;
+        return removeHelper(root, null, data);
+    }
+
+    public boolean removeHelper (TreeNode<E> node, TreeNode<E> parent, E data)
+    {
+        if (node==null)
+            return false;
+
+        int comparison = data.compareTo(node.getData());
+
+        if (comparison < 0)
+            return removeHelper(node.getLeft(), node, data);
+        else if (comparison > 0)
+            return removeHelper(node.getRight(), node, data);
+        else
+        {
+            //no children
+            if (node.getLeft()==null && node.getRight()==null)
+            {
+                //deleting root
+                if (parent == null)
+                    root = null;
+                else if (parent.getLeft()==node)
+                    parent.setLeft(null);
+                else
+                    parent.setRight(null);
+            }
+            else if (node.getLeft()!=null && node.getRight()!=null)
+            {
+                //two children
+                TreeNode<E> minNode = minNodeRight(node.getRight());
+                TreeNode<E> minNodeParent = minNodeRightParent(node);
+                E nodeData = node.getData();
+                node.setData(minNode.getData());
+                minNode.setData(nodeData);
+                removeHelper(minNode, minNodeParent, minNode.getData());
+            }
+            else
+            {
+                //one child
+                TreeNode<E> child = (node.getLeft()!=null) ? node.getLeft():node.getRight();
+                if (parent==null)
+                    root = child;
+                else if (parent.getLeft()==node)
+                    parent.setLeft(child);
+                else
+                    parent.setRight(child);
+            }
+            return true;
+        }
+    }
+
+    public TreeNode<E> minNodeRight(TreeNode<E> node)
+    {
+        while (node.getLeft()!=null)
+            node = node.getLeft();
+        return node;
+    }
+
+    public TreeNode<E> minNodeRightParent(TreeNode<E> node)
+    {
+        TreeNode<E> minNode = minNodeRight(node.getRight());
+        if (node.getRight()==minNode)
+            return node;
+        node = node.getRight();
+        while (node.getLeft()!=minNode)
+            node = node.getLeft();
+        return node;
+    }
+}
+
+//each node has max 2 child
+//node left is less, node right is greater
