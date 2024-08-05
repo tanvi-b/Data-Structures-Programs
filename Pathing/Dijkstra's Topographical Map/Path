@@ -1,0 +1,131 @@
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Collections;
+import java.awt.Point;
+
+public class Path
+{
+    public static int dijkstras (char[][] grid, ArrayList<TerrainCost> travelCosts)
+    {
+        List<Node> nodes = new ArrayList<Node>();
+        List<Node> sorted = new ArrayList<Node>();
+        for (int c = 0; c<grid[0].length; c++)
+        {
+            for (int r = 0; r<grid.length; r++)
+            {
+                Point p = new Point(c, r); 
+                if (grid[r][c]=='S')
+                {
+                    nodes.add(new Node (p, 0));
+                    sorted.add(new Node (p, 0));
+                }
+                else 
+                {
+                    nodes.add(new Node (p, Integer.MAX_VALUE));
+                    sorted.add(new Node (p, Integer.MAX_VALUE));
+                }     
+            }
+        }
+        Collections.sort(sorted);
+
+        while (sorted.isEmpty()==false)
+        {
+            Node current = sorted.remove(0);
+            int distance = current.getDistance();
+            if (distance==Integer.MAX_VALUE)
+                break;
+            ArrayList<Node> adjacentNodes = findAdjacent(grid, travelCosts, current);
+            for (int i = 0; i<adjacentNodes.size(); i++)
+            {
+                int distanceFromStart = current.getDistance() + adjacentNodes.get(i).getDistance();
+                for (int j = 0; j<nodes.size(); j++)
+                {
+                    if (nodes.get(j).getLocation().equals(adjacentNodes.get(i).getLocation()))
+                    {
+                        if (distanceFromStart<nodes.get(j).getDistance())
+                            nodes.get(j).setDistance(distanceFromStart);
+                    }
+                }
+                for (int k = 0; k<sorted.size(); k++)
+                {
+                    if (sorted.get(k).getLocation().equals(adjacentNodes.get(i).getLocation()))
+                    {
+                        if (distanceFromStart<sorted.get(k).getDistance())
+                            sorted.get(k).setDistance(distanceFromStart);
+                    }
+                } 
+            }
+            Collections.sort(sorted);
+        }
+        return endDistance(nodes, grid);
+    }
+
+    public static ArrayList<Node> findAdjacent(char[][] grid, ArrayList<TerrainCost> travelCosts, Node current)
+    {
+        ArrayList<Node> adjacentNodes = new ArrayList<Node>();
+        Point p = current.getLocation();
+        if (isValid(grid, travelCosts, (int) p.getX()-1, (int) p.getY())) //left
+            adjacentNodes.add(new Node(new Point((int) p.getX()-1, (int) p.getY()), findCost(grid, travelCosts, (int) p.getX()-1, (int) p.getY())));
+
+        if (isValid(grid, travelCosts, (int) p.getX()+1, (int) p.getY())) //right
+            adjacentNodes.add(new Node(new Point((int) p.getX()+1, (int) p.getY()), findCost(grid, travelCosts, (int) p.getX()+1, (int) p.getY()))); 
+
+        if (isValid(grid, travelCosts, (int) p.getX(), (int) p.getY()-1)) //up
+            adjacentNodes.add(new Node(new Point((int) p.getX(), (int) p.getY()-1), findCost(grid, travelCosts, (int) p.getX(), (int) p.getY()-1))); 
+
+        if (isValid(grid, travelCosts, (int) p.getX(), (int) p.getY()+1)) //down
+            adjacentNodes.add(new Node(new Point((int) p.getX(), (int) p.getY()+1), findCost(grid, travelCosts, (int) p.getX(), (int) p.getY()+1))); 
+        return adjacentNodes;
+    }
+
+    public static boolean isValid (char[][] grid, ArrayList<TerrainCost> travelCosts, int x, int y)
+    {
+        if (y>=grid.length || y<0 || x>=grid[0].length || x<0)
+            return false;
+        for (int i = 0; i<travelCosts.size(); i++)
+        {
+            if (travelCosts.get(i).getType()==grid[y][x])
+            {
+                if (travelCosts.get(i).getCost()==-1)
+                    return false;
+            }
+        }
+        return true;
+    }
+
+    public static int findCost (char[][] grid, ArrayList<TerrainCost> travelCosts, int x, int y)
+    {
+        for (int i = 0; i<travelCosts.size(); i++)
+        {
+            if (travelCosts.get(i).getType()==grid[y][x])
+                return travelCosts.get(i).getCost();
+        }
+        return -1;
+    }
+
+    public static int endDistance (List<Node> nodes, char[][] grid)
+    {
+        Point p = new Point(0,0);
+        for (int c = 0; c<grid[0].length; c++)
+        {
+            for (int r = 0; r<grid.length; r++)
+            {
+                if (grid[r][c]=='E')
+                    p.setLocation(c, r);
+            }
+        }
+
+        for (int i = 0; i<nodes.size(); i++)
+        {
+            if (nodes.get(i).getLocation().equals(p))
+            {
+                if (nodes.get(i).getDistance()!=Integer.MAX_VALUE)
+                    return nodes.get(i).getDistance();
+            }
+        }
+        return -1; 
+    }
+}
+
+// x is like column
+//y is like row
