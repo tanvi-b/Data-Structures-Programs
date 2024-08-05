@@ -1,0 +1,55 @@
+import java.util.ArrayList;
+
+public class MyPriorityQueue<E extends Comparable> implements PriorityQueueInterface<E>
+{
+    MinHeap<E> heap;
+
+    public MyPriorityQueue ()
+    {
+        heap = new MinHeap<E>();
+    }
+
+    public boolean offer(E o)
+    {
+        return heap.insert(o);
+    }
+
+	public E poll()
+    {
+        return heap.remove();
+    }
+
+	public int size()
+    {
+        return heap.size();
+    }
+
+	public boolean isEmpty()
+    {
+        return heap.isEmpty();
+    }
+
+	public void clear()
+    {
+        heap.clear();
+    }
+
+	public E get(int x)
+    {
+        if (isEmpty() || x<0 || x>heap.size())
+            return null;
+        return heap.get(x);
+    }
+    
+    public E element()
+    {
+        if (isEmpty())
+            return null;
+        return heap.get(0);
+    }
+
+    public String toString()
+    {
+        return heap.toString();
+    }
+}
