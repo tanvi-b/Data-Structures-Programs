@@ -1,0 +1,45 @@
+import java.util.*;
+
+public class ExtendedMap<K,V> extends MyMap<K,V>
+{
+    /* nonUnique - Returns a list of all the keys that have values
+    * that are not unique in the map.
+    * @return (ArrayList<K>) a list of keys that have values that are not unique.
+    */
+
+    // public static void main (String[] args)
+    // {
+    //     MyMap<Integer, String> map= new MyMap<Integer, String>();
+    //     map.put(1, "A");
+    //     map.put(2, "A");
+    //     map.put(3, "B");
+    //     map.put(4, "C");
+    //     map.put(5, "C");
+    //     map.put(6, "D");
+    //     map.put(7, "E");
+    //     map.put(8, "F");
+    //     System.out.print(nonUnique());
+    // }
+    
+    public ArrayList<K> nonUnique()
+    {
+        ArrayList<K> nonUnique = new ArrayList<K>();
+
+        Iterator<MapEnt<K,V>> iter= entrySet().iterator();
+        while(iter.hasNext())
+        {
+            MapEnt<K,V> item = iter.next();
+            int count = 0;
+            Iterator<MapEnt<K,V>> iter2= entrySet().iterator();
+            while (iter2.hasNext())
+            {
+                MapEnt<K,V> item2 = iter2.next();
+                if (item.getValue().equals(item2.getValue()))
+                    count++;
+            }
+            if (count>1)
+                nonUnique.add(item.getKey());
+        }
+        return nonUnique;
+    }
+}
