@@ -1,0 +1,242 @@
+public class DoublyCircularLinkedList<E> implements DoublyCircularLinkedListInterface<E>
+{
+    DLLNode<E> first;
+    DLLNode<E> last;
+    
+    public DoublyCircularLinkedList()
+    {
+        first = last = null;
+    }
+
+    public DoublyCircularLinkedList(E data)
+    {
+        DLLNode<E> newNode = new DLLNode(data);
+        first = last = newNode;
+        first.setNext(last);
+        first.setPrev(last);
+        last.setNext(first);
+        last.setPrev(first);
+        
+    }
+
+    public DLLNode<E> getFirstNode()
+    {
+        return first;
+    }
+	
+	public DLLNode<E> getLastNode()
+    {
+        return last;
+    }
+	
+	public E getFirst()
+    {
+        if (first==null)
+            return null;
+        return first.getData();
+    }
+	
+	public E getLast()
+    {
+        if (last==null)
+            return null;
+        return last.getData();
+    }
+	
+	public E removeFirst()
+    {
+        if (first==null)
+            return null;
+        E firstValue = first.getData();
+        if (size()==1)
+        {
+            clear();
+            return firstValue;
+        }
+        last.setNext(first.getNext());
+        first.getNext().setPrev(last);
+        first = first.getNext();
+        return firstValue;
+    }
+	
+	public E removeLast()
+    {
+        if (last==null)
+            return null;
+        E lastValue = last.getData();
+        if (size()==1)
+        {
+            clear();
+            return lastValue;
+        }
+        last = last.getPrev();
+        last.setNext(first);
+        first.setPrev(last);
+        return lastValue;
+    }
+	
+	public void addFirst(E data) 
+    {
+        DLLNode<E> newFirst = new DLLNode(data);
+        if (size()==0)
+        {
+            first = last = newFirst;
+            first.setNext(last);
+            first.setPrev(last);
+            last.setNext(first);
+            last.setPrev(first);
+        }
+        else
+        {
+            newFirst.setNext(first);
+            newFirst.setPrev(last);
+            first.setPrev(newFirst);
+            last.setNext(newFirst);
+            first = newFirst;
+        }
+    }
+	
+	public void addLast(E data) 
+    {
+        DLLNode<E> newLast = new DLLNode(data);
+        if (size()==0)
+        {
+            last = first = newLast;
+            last.setNext(first);
+            last.setPrev(first);
+            first.setNext(last);
+            first.setPrev(last);
+        }
+        else
+        {
+            newLast.setNext(first);
+            newLast.setPrev(last);
+            last.setNext(newLast);
+            first.setPrev(newLast);
+            last = newLast;
+        }
+    }
+	
+	public void clear()
+    {
+        first = last = null;
+    }
+	
+	public int size() 
+    {
+        int size = 0;
+        if (first==null)
+            return size;
+        DLLNode<E> node = first;
+        do
+        {
+            size++;
+            node = node.getNext();
+        } while (node!=first && node!=null);
+        return size;
+    }
+	
+	public E get(int x)
+    {
+        if (first==null || x>size()-1)
+            return null;
+        DLLNode<E> node = first;
+        for (int i = 0; i<x; i++)
+        {
+            node = node.getNext();
+        }
+        return node.getData();
+    }
+	
+	public void add(int x, E data)
+    {
+        if (x<0 || x>size())
+            return;
+        else if (x==size())
+            addLast(data);
+        else if (x==0)
+            addFirst(data);
+        else 
+        {
+            DLLNode<E> newNode = new DLLNode(data);
+            DLLNode<E> previousNode = first;
+            for (int i = 0; i < x - 1; i++) 
+                previousNode = previousNode.getNext();
+            newNode.setNext(previousNode.getNext());
+            previousNode.getNext().setPrev(newNode);
+            previousNode.setNext(newNode);
+            newNode.setPrev(previousNode);
+        }
+    }
+	
+	public E remove(int x)
+    {
+        if (x>size()-1 || x<0)
+            return null;
+        if (x==size()-1)
+            return removeLast();
+        if (x==0)
+            return removeFirst();
+        
+        DLLNode<E> previousNode = first;
+        for (int i = 0; i <x-1; i++) 
+        {
+            previousNode = previousNode.getNext();
+        }
+        DLLNode<E> removedNode = previousNode.getNext();
+        E removedValue = removedNode.getData();
+        previousNode.setNext(removedNode.getNext());
+        removedNode.getNext().setPrev(previousNode);
+        return removedValue;
+    }
+	
+	public E set(int x, E data)
+    {
+        if (first==null || x>size()-1)
+            return null;
+
+        DLLNode<E> node = first;
+        for (int i = 0; i<x; i++)
+        {
+            node = node.getNext();
+        }
+        E oldValue = node.getData();
+        node.setData(data);
+        return oldValue;
+    }
+	
+	public boolean isEmpty()
+    {
+        return first==null;
+    }
+
+    public String toString()
+    {
+        if (size()==0)
+            return "[]";
+        String s = "[";
+        for (int i = 0; i<size(); i++)
+        {
+            if (i==size()-1)
+                s = s + get(i) + "]";
+            else
+                s = s + get(i) + ", ";
+        }
+        return s;
+    }
+    
+    public String backwardsToString() //not working?
+    {
+        if (size()==0)
+            return "[]";
+        String s = "[";
+        for (int i = size()-1; i>=0; i++)
+        {
+            if (i==0)
+                s = s + get(i) + "]";
+            else
+                s = s + get(i) + ", ";
+        }
+        return s;
+    }
+}
