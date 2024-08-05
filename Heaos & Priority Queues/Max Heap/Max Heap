@@ -1,0 +1,96 @@
+import java.util.ArrayList;
+
+public class MaxHeap<E extends Comparable> implements HeapInterface<E>
+{
+    ArrayList<E> heap;
+
+    public MaxHeap ()
+    {
+        heap = new ArrayList<E>();
+    }
+
+    public boolean insert(E item)
+    {
+        heap.add(item);
+        heapifyUp(heap.size()-1);
+        return true;
+    }
+
+    public void heapifyUp (int index) 
+    {
+        //keep on swapping with your parent until the parent is not longer smaller
+        int parentIndex = (index-1)/2;
+
+        while (index > 0 && heap.get(index).compareTo(heap.get(parentIndex))>0) 
+        {
+            swap (index, parentIndex);
+            index = parentIndex;
+            parentIndex = (index-1)/2;
+        }
+    }
+	
+    public E remove()
+    {
+        if (isEmpty())
+            return null;
+        //replace root with last element & then move it to the right place
+        E removedItem = heap.get(0);
+        E lastElement = heap.get(heap.size()-1);
+        heap.set(0,lastElement);
+        heap.remove(heap.size()-1);
+        heapifyDown(0);
+        return removedItem;
+    }
+    
+    public void heapifyDown (int index)
+    {
+        int root = index;
+        int leftChildIndex=(index*2)+1;
+        int rightChildIndex=(index*2)+2;
+
+        if (leftChildIndex<heap.size() && heap.get(leftChildIndex).compareTo(heap.get(root))>0)
+            root = leftChildIndex;         
+   	    if (rightChildIndex<heap.size() && heap.get(rightChildIndex).compareTo(heap.get(root))>0)
+            root = rightChildIndex;
+        if (root != index) 
+	    {
+            swap(index, root);
+            heapifyDown(root);
+        }
+    }
+
+    public void swap (int index, int otherIndex)
+    {
+        E temp = heap.get(index);
+        heap.set(index, heap.get(otherIndex));
+        heap.set(otherIndex, temp);
+    }
+ 
+    public boolean isEmpty()
+    {
+        return heap.isEmpty();
+    }
+	
+    public int size()
+    {
+        return heap.size();
+    }
+	
+    public E get(int x)
+    {
+        if (isEmpty() || x<0 || x>heap.size())
+            return null;
+        return heap.get(x);
+    }
+	
+    public void clear()
+    {
+        heap.clear();
+    }
+    
+    public String toString()
+    {
+        return heap.toString();
+    }
+}
+
