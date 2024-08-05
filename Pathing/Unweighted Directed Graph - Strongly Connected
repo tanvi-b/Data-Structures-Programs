@@ -1,0 +1,85 @@
+import java.util.*;
+
+public class Graph
+{
+    public static void main (String[] args)
+    {
+        String vertices = "abcd";
+        String[] edges = {"ab","ac","ad","bc", "bd", "db"};
+        char start = 'd';
+        char end = 'B';
+        System.out.println(bfs(edges, start, end));
+        String[] scr = stronglyConnectedRegions(edges, vertices);
+        for (String element: scr) {
+            System.out.println(element);
+        }
+    }
+
+    public static String[] stronglyConnectedRegions(String[] edges, String vertices)
+    {
+        ArrayList<String> stronglyConnected = new ArrayList<String>();
+        for (int i =0; i<edges.length; i++)
+        {
+            char start = edges[i].charAt(0);
+            String currentRegion = "";
+            for (int j = 0; j<vertices.length(); j++)
+            {
+                if (bfs(edges, start, vertices.charAt(j)) && bfs(edges, vertices.charAt(j), start))
+                    currentRegion+=Character.toString(vertices.charAt(j));
+            }
+            if (isRegionFound(stronglyConnected, currentRegion)==false && currentRegion.length()!=1)
+                stronglyConnected.add(currentRegion);
+        }
+
+        String scr[] = stronglyConnected.toArray(new String[stronglyConnected.size()]);
+        if (scr.length==0)
+            return null;
+        return scr;
+    }
+
+    public static boolean isRegionFound(List<String> arrayList, String region) 
+    {
+        char[] array = region.toCharArray();
+        Arrays.sort(array);
+
+        for (String foundRegions:arrayList) 
+        {
+            char[] array2 = foundRegions.toCharArray();
+            Arrays.sort(array2);
+
+            if (Arrays.equals(array, array2)) 
+                return true; 
+        }
+        return false; 
+    }
+    
+    public static boolean bfs (String[] edges, char start, char end)
+    {
+        Queue<String> queue = new LinkedList<>();
+        String startString = Character.toString(start);
+        queue.offer(startString);
+
+        while (queue.isEmpty()==false)
+        {
+            String cur = queue.poll();
+            char curLetter = cur.charAt(cur.length()-1);
+            if (Character.toLowerCase(curLetter) == Character.toLowerCase(end))
+                return true;
+            for (int i = 0; i<edges.length; i++)
+            {
+                String edge = edges[i];
+                char nextVertice;
+                if (Character.toLowerCase(edge.charAt(0)) == Character.toLowerCase(curLetter))
+                    nextVertice = edge.charAt(1);
+                else 
+                    continue;
+                if (cur.indexOf(nextVertice)==-1)
+                {
+                    String newPath = cur + Character.toString(nextVertice);
+                    queue.offer(newPath);
+                }
+            }
+        }
+        return false;
+    }
+}
