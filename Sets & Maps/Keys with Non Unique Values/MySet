@@ -1,0 +1,53 @@
+import java.util.*;
+public class MySet <E> implements SetInterface <E>
+{
+	private ArrayList <E> data;
+
+    public MySet()
+    {
+        data = new ArrayList <E>();
+    }
+
+	public boolean add(E o)
+    {
+        if (data.contains(o))
+            return false;
+        return data.add(o);
+    }
+
+	public void clear()
+    {
+        data.clear();
+    }
+
+	public boolean contains(E o)
+    {
+        return data.contains(o);
+    }
+
+	public boolean isEmpty()
+    {
+        return data.isEmpty();
+    }
+
+	public Iterator<E> iterator()
+    {
+        Iterator<E> iterator = data.iterator();
+        return iterator;
+    }
+
+	public boolean remove(E o)
+    {
+        return data.remove(o);
+    }
+
+	public int size()
+    {
+        return data.size();
+    }
+
+    public Object[] toArray()
+    {
+        return data.toArray();
+    }
+}
