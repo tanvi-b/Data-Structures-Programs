@@ -1,0 +1,161 @@
+import java.util.ArrayList;
+import java.util.List;
+import java.awt.Point;
+import java.util.Collections;
+
+public class Path
+{
+    public static Solution aStar (char[][] maze)
+    {
+        List<Node> open = new ArrayList<Node>();
+        List<Node> closed = new ArrayList<Node>();
+
+        Point s = findStart(maze);
+        Point e = findEnd(maze);
+        open.add(new Node(s, null, 0, estimateH(s, e)));
+
+        while(open.isEmpty()==false)
+        {
+            Node cur = findCurNode(open);
+
+            if (cur.getLocation().equals(e))
+                return findPath(cur);
+
+            open.remove(cur);
+            closed.add(cur);
+//continue from here
+            List<Point> neighbors = findNeighbors(cur, maze);
+            for (int i = 0; i<neighbors.size(); i++)
+            {
+                if (commonLocation(neighbors.get(i), closed)==false)
+                {
+                    if (commonLocation(neighbors.get(i), open)==true)
+                    {
+                        Node p = findCommonLocationNode(neighbors.get(i), open);
+                        int newG = cur.getG() + 1;
+                        if (newG < p.getG()) 
+                        {
+                            p.setG(newG);
+                            p.fixF();
+                        }
+                    }
+                    else 
+                    {
+                        Node p = new Node(neighbors.get(i), cur, cur.getG() + 1, estimateH(neighbors.get(i), e));
+                        open.add(p);
+                    }
+                }
+            }
+        }
+        return null;
+    }
+
+    public static int estimateH(Point cur, Point e)
+    {
+        return (int) (Math.abs(cur.getX()-e.getX()) + Math.abs(cur.getY()-e.getY()));
+    }
+    
+    public static boolean commonLocation (Point cur, List<Node> nodeList)
+    {
+        for (int i = 0; i<nodeList.size(); i++)
+        {
+            if (nodeList.get(i).getLocation().equals(cur))
+                return true;
+        }
+        return false;
+    }
+
+    public static Node findCommonLocationNode (Point cur, List<Node> nodeList)
+    {
+        for (int i = 0; i<nodeList.size(); i++)
+        {
+            if (nodeList.get(i).getLocation().equals(cur))
+                return nodeList.get(i);
+        }
+        return null;
+    }
+    
+    public static Solution findPath (Node endNode)
+    {
+        ArrayList<Point> path = new ArrayList<Point>(); 
+        int steps = 0;
+
+        Node cur = endNode;
+        while (cur!=null)
+        {
+            path.add(cur.getLocation());
+            cur = cur.getParent();
+            steps++;
+        }
+        Collections.reverse(path);
+        return new Solution (path, steps-1);
+    }
+    
+    public static Node findCurNode (List<Node> open)
+    {
+        Node cur = open.get(0);
+        for (int i = 0; i<open.size(); i++)
+        {
+            if (open.get(i).getF()<cur.getF() || (open.get(i).getF()==cur.getF() && open.get(i).getF()<cur.getF())) 
+                cur = open.get(i); 
+        }
+        return cur;
+    }
+    
+    public static List<Point> findNeighbors (Node cur, char[][] maze)
+    {
+        List<Point> neighbors = new ArrayList<Point>();
+        int x = (int) cur.getLocation().getX();
+        int y = (int) cur.getLocation().getY();
+        if (isValid(maze, x-1, y))
+            neighbors.add(new Point(x-1, y));
+        if (isValid(maze, x+1, y))
+            neighbors.add(new Point(x+1, y));
+        if (isValid(maze, x, y-1))
+            neighbors.add(new Point(x, y-1));
+        if (isValid(maze, x, y+1))
+            neighbors.add(new Point(x, y+1)); 
+        return neighbors;
+    }
+    
+    public static boolean isValid (char[][] maze, int x, int y)
+    {
+        if (y>=maze.length || y<0 || x>=maze[0].length || x<0 || maze[y][x]=='W')
+            return false;
+        return true;
+    }
+
+    public static Point findStart (char[][] maze)
+    {
+        Point p = new Point (0,0);
+        for (int c = 0; c<maze[0].length; c++)
+        {
+            for (int r = 0; r<maze.length; r++)
+            {
+                if (maze[r][c]=='S')
+                    p.setLocation(c, r);
+            }
+        }
+        return p;
+    }
+    
+    public static Point findEnd (char[][] maze)
+    {
+        Point p = new Point (0,0);
+        for (int c = 0; c<maze[0].length; c++)
+        {
+            for (int r = 0; r<maze.length; r++)
+            {
+                if (maze[r][c]=='E')
+                    p.setLocation(c, r);
+            }
+        }
+        return p;
+    }
+}
+
+//x is like column
+//y is like row
+
+//orthognal distance formula: abs value of diff in x + abs value of diff in y
+
