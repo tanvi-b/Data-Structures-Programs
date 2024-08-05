@@ -1,0 +1,99 @@
+import java.util.*;
+
+// import java.util.List;
+// import java.util.ArrayList;
+// import java.util.LinkedList;
+// import java.util.Queue;
+
+public class Graph
+{
+    public static void main (String[] args)
+    {
+        String[] edges = {"AB","BC","BD","DC"};
+        String vertices = "ABCD";
+        System.out.print(bridges(edges,vertices));
+    }
+    
+    public static ArrayList<String> bridges (String[] edges, String vertices)
+    {
+        ArrayList<String> bridges = new ArrayList<String>();
+        List<String> edgesArrayList = new ArrayList(Arrays.asList(edges));
+        boolean[][] originalMatrix = adjacencyMatrix (edges, vertices);
+
+        for (int i = 0; i<edgesArrayList.size(); i++)
+        {
+            String edge = edgesArrayList.remove(i);
+            String[] newEdges = new String[edgesArrayList.size()];
+            for (int j = 0; j <edgesArrayList.size(); j++) 
+            {
+                newEdges[j] = edgesArrayList.get(j);
+            }
+            edgesArrayList.add(i, edge);
+            boolean[][] newMatrix = adjacencyMatrix (newEdges, vertices);
+            if (areArraysEquals (originalMatrix, newMatrix)==false)
+                bridges.add(edge);
+        }
+
+        if (bridges.isEmpty())
+            return null;
+        return bridges;
+    }
+
+    public static boolean areArraysEquals (boolean[][] array1, boolean[][] array2)
+    {
+        for (int r = 0; r<array1.length; r++)
+        {
+            for (int c = 0; c<array1[0].length; c++)
+            {
+                if (array1[r][c] != array2[r][c])
+                    return false;
+            }
+        }
+        return true;
+    }
+    
+    public static boolean[][] adjacencyMatrix (String[] edges, String vertices)
+    {
+        boolean[][] adjacencyMatrix = new boolean [vertices.length()][vertices.length()];
+        for (int i = 0; i<vertices.length(); i++)
+        {
+            for (int j = 0; j<vertices.length(); j++)
+            {
+                adjacencyMatrix[i][j] = breadthFirstSearch (edges, vertices, vertices.charAt(i), vertices.charAt(j));
+            }
+        }
+        return adjacencyMatrix;
+    }
+
+    public static boolean breadthFirstSearch (String[] edges, String vertices, char start, char end)
+    {
+        Queue<String> queue = new LinkedList<>();
+        String startString = Character.toString(start);
+        queue.offer(startString);
+
+        while (queue.isEmpty()==false)
+        {
+            String cur = queue.poll();
+            char curLetter = cur.charAt(cur.length()-1);
+            if (curLetter==end)
+                return true; 
+            for (int i = 0; i<edges.length; i++)
+            {
+                String edge = edges[i];
+                char nextVertice;
+                if (edge.indexOf(curLetter)==0)
+                    nextVertice = edge.charAt(1);
+                else if (edge.indexOf(curLetter)==1)
+                    nextVertice = edge.charAt(0);
+                else 
+                    continue;
+                if (cur.indexOf(nextVertice)==-1)
+                {
+                    String newPath = cur + Character.toString(nextVertice);
+                    queue.offer(newPath);
+                }
+            }
+        }
+        return false;
+    }
+}
