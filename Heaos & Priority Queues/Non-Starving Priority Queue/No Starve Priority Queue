@@ -1,0 +1,23 @@
+public class NoStarvePriorityQueue<E> extends MyPriorityQueue<PriorityNode<E>>
+{
+    MyPriorityQueue<PriorityNode<E>> pq;
+
+    public NoStarvePriorityQueue ()
+    {
+        pq=new MyPriorityQueue<PriorityNode<E>>();
+    }
+
+    public PriorityNode<E> poll()
+    {
+        PriorityNode<E> removedItem = super.poll();
+        for (int i = 0; i<pq.size(); i++)
+        {
+            PriorityNode<E> item = pq.get(i);
+            item.setPriority(item.getPriority()-1);
+        }
+        return removedItem;
+    }
+}
+
+
+
