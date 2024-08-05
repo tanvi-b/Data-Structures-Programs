@@ -1,0 +1,100 @@
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Collections;
+
+public class Path
+{
+    public static void main (String[] args)
+    {
+        String vertices = "abcde";
+        String[] edges = {"ab3", "ae5", "bd5", "bc8", "be3", "dc2", "ed4"};
+        char start = 'c';
+        char end = 'd';
+        ArrayList<Node> nodes = findAdjacent (edges, new Node('c',0));
+        System.out.println(nodes);
+        System.out.print(dijkstras (edges, vertices, start, end));
+    }
+    public static int dijkstras (String[] edges, String vertices, char start, char end)
+    {
+        List<Node> nodes = new ArrayList<Node>();
+        List<Node> sorted = new ArrayList<Node>();
+        for (int i = 0; i<vertices.length(); i++)
+        {
+            if (vertices.charAt(i)==start)
+            {
+                nodes.add(new Node(start, 0));
+                sorted.add(new Node(start, 0));
+            }
+            else
+            { 
+                nodes.add(new Node(vertices.charAt(i), Integer.MAX_VALUE));
+                sorted.add(new Node(vertices.charAt(i), Integer.MAX_VALUE));
+            } 
+        }
+        Collections.sort(sorted);
+
+        while (sorted.isEmpty()==false)
+        {
+            Node current = sorted.remove(0);
+            int distance = current.getDistance();
+            if (distance==Integer.MAX_VALUE)
+                break;
+            ArrayList<Node> adjacentNodes = findAdjacent(edges, current);
+            for (int i = 0; i<adjacentNodes.size(); i++)
+            {
+                int distanceFromStart = current.getDistance() + adjacentNodes.get(i).getDistance();
+                for (int j = 0; j<nodes.size(); j++)
+                {
+                    if (nodes.get(j).getLocation()==adjacentNodes.get(i).getLocation())
+                    {
+                        if (distanceFromStart<nodes.get(j).getDistance())
+                            nodes.get(j).setDistance(distanceFromStart);
+                    }
+                }
+                for (int k = 0; k<sorted.size(); k++)
+                {
+                    if (sorted.get(k).getLocation()==adjacentNodes.get(i).getLocation())
+                    {
+                        if (distanceFromStart<sorted.get(k).getDistance())
+                            sorted.get(k).setDistance(distanceFromStart);
+                    }
+                } 
+            }
+            Collections.sort(sorted);
+        }
+        return endDistance (nodes, end);
+    }
+
+    public static ArrayList<Node> findAdjacent (String[] edges, Node current) //this is working
+    {
+        ArrayList<Node> adjacentNodes = new ArrayList<Node>();
+        for (int i = 0; i<edges.length; i++)
+        {
+            String node = edges[i];
+            int index = 0;
+            if (node.indexOf(current.getLocation())==0)
+            {
+                for (int j = 0; j<node.length(); j++)
+                {
+                    if (node.charAt(j)!=current.getLocation() && Character.isDigit(node.charAt(j))==false)
+                        index = j;
+                }
+                adjacentNodes.add(new Node(node.charAt(index), Integer.parseInt(node.substring(2))));
+            }
+        }
+        return adjacentNodes; 
+    }
+
+    public static int endDistance (List<Node> sorted, char end)
+    {
+        for (int i = 0; i<sorted.size(); i++)
+        {
+            if (sorted.get(i).getLocation()==end)
+            {
+                if (sorted.get(i).getDistance()!=Integer.MAX_VALUE)
+                    return sorted.get(i).getDistance();
+            }
+        }
+        return -1; 
+    }
+}
